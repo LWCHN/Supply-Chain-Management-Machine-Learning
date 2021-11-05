@@ -15,8 +15,9 @@ Created on Tue Aug  8 20:18:15 2017
 # First, import the coutry code to continent map for my location functions
 import pandas as pd
 import os
-path = os.curdir+"\Data\Source\\"
-ct_df = pd.read_csv(path+"country_code_to_continent_map.csv")
+#path = os.curdir+"\Data\Source\\"
+
+ct_df = pd.read_csv("./Data/Source/country_code_to_continent_map.csv",encoding = "ISO-8859-1")
 CONTINENT_DICT = {x:y for x,y in zip(ct_df.country,ct_df.continent)}
 
 ###############################################################################
@@ -149,7 +150,7 @@ def getColumnDataTypes(data):
         print ("Total columns: {} \n, Numeric columns: {}\n, Categorical columns: {}\n, Datetime columns: {}".format(t, n, c, d))
     return (num_cols, cat_cols, date_cols)
 
-def parse_raw_data(ExcelFileObject):
+def parse_raw_data000(ExcelFileObject):
     # Some notes:  a problem with the encoding, solution here
     #..https://stackoverflow.com/questions/19699367/unicodedecodeerror-utf-8-codec-cant-decode-byte
     # raw = pd.read_csv('../Supply Chain/pepfar supply chain.csv', encoding = "ISO-8859-1")
@@ -168,6 +169,27 @@ def parse_raw_data(ExcelFileObject):
     data.name = 'data'
     parsed_data = [summary, purpose, ref, data]
     return parsed_data
+
+def parse_raw_data(ExcelFileObject):
+    # Some notes:  a problem with the encoding, solution here
+    #..https://stackoverflow.com/questions/19699367/unicodedecodeerror-utf-8-codec-cant-decode-byte
+    # raw = pd.read_csv('../Supply Chain/pepfar supply chain.csv', encoding = "ISO-8859-1")
+    # Summary data
+    full = ExcelFileObject
+    summary = full.parse(full.sheet_names[0])
+    summary.name='summary'
+    # Purpose data
+    purpose = full.parse(full.sheet_names[1])
+    purpose.name = 'purpose'
+    # Ref is the data dictionary for reference on what the columns mean
+    ref = full.parse(full.sheet_names[2]).iloc[:33,:]
+    ref.name = 'ref'
+    # Data if the full data set
+    data = full.parse(full.sheet_names[3])
+    data.name = 'data'
+    parsed_data = [summary, purpose, ref, data]
+    return parsed_data
+
 
 def rename_data_columns(data, newcol_list):
     # See the original columns
@@ -194,7 +216,8 @@ def get_blocks_by_dtype(data):
         print("Type: {} , Count: {} \nColumns and null counts---: \n{}\n".format(
             k,len(blocks[k].columns),blocks[k].isnull().sum()))
     return blocks
-    
+
+
 def clean_data():
     # To implement, this should run another file which does data cleaning
     pass
